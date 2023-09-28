@@ -1,0 +1,30 @@
+{
+  "name": "@chatbot/backend",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts",
+    "lint": "eslint --fix './src/**/*.{js,ts,jsx,tsx}' && prettier --write './src/**/*.{js,ts}'",
+    "lint:nofix": "eslint './src/**/*.{js,ts,jsx,tsx}'"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.1.9",
+    "hono": "^3.7.2",
+    "zod": "^3.22.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230914.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-n": "^16.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-standard": "^5.0.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2",
+    "wrangler": "^3.9.0"
+  }
+}
