@@ -3,6 +3,7 @@
   "scripts": {
     "dev": "wrangler dev src/index.ts",
     "deploy": "wrangler deploy --minify src/index.ts",
+    "wrangler": "wrangler",
     "lint": "eslint --fix './src/**/*.{js,ts,jsx,tsx}' && prettier --write './src/**/*.{js,ts}'",
     "lint:nofix": "eslint './src/**/*.{js,ts,jsx,tsx}'"
   },
