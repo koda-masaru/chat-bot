@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
-import { OpenAI } from 'openai'
+import { chat } from '../logic/openai'
 
 export const uiRoute = new Hono()
 
@@ -82,21 +82,7 @@ const envVariables = z.object({
 uiRoute.post('/chat', zValidator('form', chatMessageSchema), async (c) => {
   const env = envVariables.parse(c.env)
   const { chat_message } = c.req.valid('form')
-
-  let answer = ''
-  if (chat_message.length > 5) {
-    const openai = new OpenAI({
-      apiKey: env.OPEN_AI_KEY,
-    })
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      temperature: 0.7,
-      messages: [{ role: 'user', content: chat_message }],
-    })
-    answer = response.choices[0].message?.content ?? ''
-  } else {
-    answer = '質問は5文字以上で入力してください'
-  }
+  const answer = await chat(chat_message, env.OPEN_AI_KEY)
 
   return c.html(
     <html>
