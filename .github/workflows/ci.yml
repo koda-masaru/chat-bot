@@ -11,8 +11,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
+      # buildできるかのチェックをCIでかけたいが方法がわからなかった
       - run: | 
           cd packages/chatbot-backend
           yarn install
           yarn lint
-          yarn dev
