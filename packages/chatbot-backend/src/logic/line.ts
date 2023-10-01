@@ -15,15 +15,15 @@ export async function validateSignature(payload: string, signature: string, secr
   return verified
 }
 
-export async function replyMessage(text: string, replyToken: string, accessToken: string) {
-  const response: TextMessage = {
+export async function replyMessage(text: string, replyToken: string, accessToken: string): Promise<boolean> {
+  const msg: TextMessage = {
     type: 'text',
     text,
   }
-  await fetch('https://api.line.me/v2/bot/message/reply', {
+  const response = await fetch('https://api.line.me/v2/bot/message/reply', {
     body: JSON.stringify({
       replyToken,
-      messages: [response],
+      messages: [msg],
     }),
     method: 'POST',
     headers: {
@@ -31,20 +31,25 @@ export async function replyMessage(text: string, replyToken: string, accessToken
       'Content-Type': 'application/json',
     },
   })
+  console.log('result of reply  from line.', { status: response.status, body: response.body })
+  if (response.status > 300) {
+    return false
+  }
+  return true
 }
 
 export type LinePushMessage = { to: string; messages: Message | Message[] }
 
-export async function sendMessage(text: string, to: string, accessToken: string) {
-  const response: TextMessage = {
+export async function sendMessage(text: string, to: string, accessToken: string): Promise<boolean> {
+  const msg: TextMessage = {
     type: 'text',
     text,
   }
   const message: LinePushMessage = {
     to,
-    messages: [response],
+    messages: [msg],
   }
-  await fetch('https://api.line.me/v2/bot/message/push', {
+  const response = await fetch('https://api.line.me/v2/bot/message/push', {
     body: JSON.stringify(message),
     method: 'POST',
     headers: {
@@ -52,4 +57,9 @@ export async function sendMessage(text: string, to: string, accessToken: string)
       'Content-Type': 'application/json',
     },
   })
+  console.log('result of send from line.', { status: response.status, body: response.body })
+  if (response.status > 300) {
+    return false
+  }
+  return true
 }

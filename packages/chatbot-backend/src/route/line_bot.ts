@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { WebhookEvent } from '@line/bot-sdk'
 import { z } from 'zod'
-import { replyMessage, validateSignature } from '../logic/line'
+import { replyMessage, sendMessage, validateSignature } from '../logic/line'
 import { chat } from '../logic/openai'
 
 export const lineBotRoute = new Hono()
@@ -12,12 +12,17 @@ const envVariables = z.object({
   LINE_CHANNEL_SECRET: z.string().min(1),
 })
 
-async function callOpenAIAndReply(message: string, apiKey: string, replyToken: string, lineAccessToken: string) {
+async function callOpenAIAndReply(message: string, apiKey: string, replyToken: string, lineAccessToken: string, userId: string) {
   // await replyMessage('質問の回答を考えています...', replyToken, lineAccessToken)
   const answer = await chat(message, apiKey)
-  // wait sendMessage(answer, event.source.userId, LINE_ACCESS_TOKEN)
-  await replyMessage(answer, replyToken, lineAccessToken)
   console.log(answer)
+  const sended = await replyMessage(answer, replyToken, lineAccessToken)
+  if (!sended) {
+    // 返信は有効期限がありOpenAIでの結果が返信の有効期間中に帰ってこないことがある
+    // その場合は通常のメッセージとして送る
+    await sendMessage(answer, userId, lineAccessToken)
+  }
+  return answer
 }
 
 lineBotRoute.post('/', async (c) => {
@@ -69,7 +74,7 @@ lineBotRoute.post('/', async (c) => {
           */
 
           // executionCtx で囲まないとクライアント(LINEのWebHookの接続が切れるのか、 このリクエストの処理が Canceled になって終了してしまう)
-          c.executionCtx.waitUntil(callOpenAIAndReply(receivedMessage.text, OPEN_AI_KEY, event.replyToken, LINE_ACCESS_TOKEN))
+          c.executionCtx.waitUntil(callOpenAIAndReply(receivedMessage.text, OPEN_AI_KEY, event.replyToken, LINE_ACCESS_TOKEN, event.source.userId))
         } else {
           await replyMessage('メッセージを入力してください（スタンプだけとか画像だけだと回答できません）', event.replyToken, LINE_ACCESS_TOKEN)
         }
